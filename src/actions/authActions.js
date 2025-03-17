@@ -25,24 +25,28 @@ export function submitRegister(data) {
         return fetch(`${API_URL}/signup`, {
             method: 'POST',
             headers: {
-                'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(data),
-            mode: 'cors'
+            body: JSON.stringify(data)
         })
-        .then(response => response.json())
+        .then(async response => {
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Signup failed: ${response.status} - ${errorText}`);
+            }
+            return response.json();
+        })
         .then(res => {
             if (res.success) {
                 alert("Registration successful! Logging in...");
-                dispatch(submitLogin({ username: data.username, password: data.password })); // Auto-login after signup
+                dispatch(submitLogin({ username: data.username, password: data.password }));
             } else {
                 alert(`Registration failed: ${res.message}`);
             }
         })
-        .catch((error) => {
+        .catch(error => {
             console.error("Signup error:", error);
-            alert("Signup failed. Please check your network and try again.");
+            alert(`Signup failed: ${error.message}`);
         });
     };
 }
@@ -53,27 +57,31 @@ export function submitLogin(data) {
         return fetch(`${API_URL}/signin`, {
             method: 'POST',
             headers: {
-                'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(data),
-            mode: 'cors'
+            body: JSON.stringify(data)
         })
-        .then(response => response.json())
+        .then(async response => {
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Login failed: ${response.status} - ${errorText}`);
+            }
+            return response.json();
+        })
         .then(res => {
             if (res.success) {
                 localStorage.setItem('username', data.username);
-                localStorage.setItem('token', `JWT ${res.token}`); // Ensure JWT prefix
+                localStorage.setItem('token', `JWT ${res.token}`);
                 dispatch(userLoggedIn(data.username));
                 alert("Login successful!");
-                window.location.href = "/movielist"; // Redirect user after login
+                window.location.href = "/movielist";
             } else {
                 alert(`Login failed: ${res.message}`);
             }
         })
-        .catch((error) => {
+        .catch(error => {
             console.error("Login error:", error);
-            alert("Login failed. Please check your credentials or network.");
+            alert(`Login failed: ${error.message}`);
         });
     };
 }
