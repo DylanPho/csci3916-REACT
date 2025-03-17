@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import thunk from 'redux-thunk'; // ✅ Ensure redux-thunk is imported
+import { thunk } from 'redux-thunk'; // ✅ Import as named export
 import authReducer from "../reducers/authReducer";
 import movieReducer from "../reducers/movieReducer";
 
