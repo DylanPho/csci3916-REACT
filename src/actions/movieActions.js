@@ -1,6 +1,6 @@
 import actionTypes from '../constants/actionTypes';
-//import runtimeEnv from '@mars/heroku-js-runtime-env'
-const env = process.env;
+
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080"; // Fallback to localhost if env var is missing
 
 function moviesFetched(movies) {
     return {
@@ -29,41 +29,47 @@ export function setMovie(movie) {
     }
 }
 
+// ✅ Fetch a single movie with reviews
 export function fetchMovie(movieId) {
     return dispatch => {
-        return fetch(`${env.REACT_APP_API_URL}/movies/${movieId}?reviews=true`, {
+        return fetch(`${API_URL}/movies/${movieId}?reviews=true`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'Authorization': localStorage.getItem('token')
-            },
-            mode: 'cors'
+                'Authorization': localStorage.getItem('token') // Include JWT token
+            }
         }).then((response) => {
             if (!response.ok) {
-                throw Error(response.statusText);
+                throw Error(`Error ${response.status}: ${response.statusText}`);
             }
-            return response.json()
+            return response.json();
         }).then((res) => {
             dispatch(movieFetched(res));
-        }).catch((e) => console.log(e));
+        }).catch((e) => console.error("Error fetching movie:", e));
     }
 }
 
+// ✅ Fetch all movies (with optional reviews query)
 export function fetchMovies() {
     return dispatch => {
         const token = localStorage.getItem('token'); // Retrieve stored token
-        return fetch(`${env.REACT_APP_API_URL}/movies?reviews=true`, {
+        console.log("Fetching movies from:", `${API_URL}/movies?reviews=true`); // Debugging
+
+        return fetch(`${API_URL}/movies?reviews=true`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
                 'Authorization': token  // Include JWT token
-            },
-            mode: 'cors'
-        }).then(response => response.json())
-        .then(res => {
+            }
+        }).then(response => {
+            if (!response.ok) {
+                throw Error(`Error ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        }).then(res => {
             dispatch(moviesFetched(res));
-        }).catch((e) => console.log("Error fetching movies:", e));
+        }).catch((e) => console.error("Error fetching movies:", e));
     }
 }
