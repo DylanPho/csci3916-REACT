@@ -1,6 +1,6 @@
 import actionTypes from '../constants/actionTypes';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL; // Uses environment variable
 console.log("Backend API URL:", process.env.REACT_APP_API_URL);
 
 
