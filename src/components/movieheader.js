@@ -27,15 +27,18 @@ function MovieHeader() {
                     <Nav.Link as={NavLink} to={'/movie/' + (selectedMovie? selectedMovie._id: '')} disabled={!loggedIn}>
                         Movie Detail
                     </Nav.Link>
-                    <Nav.Link as={NavLink} to="/signin"> 
-                        {loggedIn? (
-                        <span onClick={logout} style={{ cursor: 'pointer' }}>
-                            Logout
-                        </span>
-                        ): (
-                        'Login'
-                        )}
-                    </Nav.Link>
+                    {loggedIn ? (
+                        <Nav.Link>
+                            <span style={{ color: "white", marginRight: "10px" }}>
+                                Welcome, {username}!
+                            </span>
+                            <span onClick={logout} style={{ cursor: "pointer", color: "red" }}>
+                                Logout
+                            </span>
+                        </Nav.Link>
+                    ) : (
+                        <Nav.Link as={NavLink} to="/signin">Login</Nav.Link>
+                    )}
                 </Nav>
                 </Navbar.Collapse>
             </Navbar>

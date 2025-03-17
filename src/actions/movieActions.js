@@ -52,21 +52,18 @@ export function fetchMovie(movieId) {
 
 export function fetchMovies() {
     return dispatch => {
+        const token = localStorage.getItem('token'); // Retrieve stored token
         return fetch(`${env.REACT_APP_API_URL}/movies?reviews=true`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'Authorization': localStorage.getItem('token')
+                'Authorization': token  // Include JWT token
             },
             mode: 'cors'
-        }).then((response) => {
-            if (!response.ok) {
-                throw Error(response.statusText);
-            }
-            return response.json()
-        }).then((res) => {
+        }).then(response => response.json())
+        .then(res => {
             dispatch(moviesFetched(res));
-        }).catch((e) => console.log(e));
+        }).catch((e) => console.log("Error fetching movies:", e));
     }
 }
