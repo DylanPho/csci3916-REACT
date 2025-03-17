@@ -1,6 +1,8 @@
 import actionTypes from '../constants/actionTypes';
 
 const API_URL = process.env.REACT_APP_API_URL;
+console.log("Backend API URL:", process.env.REACT_APP_API_URL);
+
 
 // Action: User Logged In
 function userLoggedIn(username) {
