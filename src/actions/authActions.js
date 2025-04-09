@@ -79,10 +79,10 @@ export function submitLogin(data) {
                 alert(`Login failed: ${res.message}`);
             }
         })
-        .catch(error => {
+        .catch((error) => {
             console.error("Login error:", error);
-            alert(`Login failed: ${error.message}`);
-        });
+            alert("Login failed: " + error.message);
+        });        
     };
 }
 
