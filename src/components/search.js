@@ -15,7 +15,7 @@ const Search = () => {
     if (actorName.trim()) searchData.actorName = actorName;
   
     const response = await searchMovies(searchData);
-    console.log("🔍 Search result:", response);
+    console.log("🔍 Search result:", response); // ✅ Log actual results
     setResults(response);
   };  
 
