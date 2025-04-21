@@ -9,14 +9,15 @@ const Search = () => {
 
   const handleSearch = async (e) => {
     e.preventDefault();
-
+  
     const searchData = {};
     if (title.trim()) searchData.title = title;
     if (actorName.trim()) searchData.actorName = actorName;
-
-    const response = await searchMovies(searchData); // Returns just the array
-    setResults(response); // ✅ No `.data` needed, already extracted in action
-  };
+  
+    const response = await searchMovies(searchData);
+    console.log("🔍 Search result:", response);
+    setResults(response);
+  };  
 
   return (
     <Container className="p-4">
