@@ -53,48 +53,61 @@ export function submitRegister(data) {
 // 🚀 Login Action
 export function submitLogin(data) {
     return dispatch => {
-        return fetch(`${API_URL}/signin`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(async response => {
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Login failed: ${response.status} - ${errorText}`);
-            }
-            return response.json();
-        })
-        .then(res => {
-            if (res.success && res.token) {
-                let jwtToken = res.token;
-
-                // ✅ Strip duplicate "JWT " prefix if it already exists
-                if (jwtToken.startsWith("JWT ")) {
-                    jwtToken = jwtToken.substring(4);
-                }
-
-                const formattedToken = `JWT ${jwtToken}`;
-                console.log("✅ Storing token:", formattedToken);
-
-                localStorage.setItem('username', data.username);
-                localStorage.setItem('token', formattedToken);
-                dispatch(userLoggedIn(data.username));
-
-                alert("Login successful!");
-                window.location.href = "/movielist";
-            } else {
-                alert("Login failed: Token missing in response.");
-            }
-        })
-        .catch((error) => {
-            console.error("Login error:", error);
-            alert("Login failed: " + error.message);
-        });
+      return fetch(`${API_URL}/signin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(async response => {
+        const text = await response.text();
+  
+        if (!text) {
+          throw new Error("Empty response from server.");
+        }
+  
+        let res;
+        try {
+          res = JSON.parse(text);
+        } catch (err) {
+          throw new Error("Invalid JSON: " + text);
+        }
+  
+        if (!response.ok) {
+          throw new Error(`Login failed: ${res.message}`);
+        }
+  
+        return res;
+      })
+      .then(res => {
+        if (res.success && res.token) {
+          let jwtToken = res.token;
+  
+          // Strip duplicate JWT prefix if already included
+          if (jwtToken.startsWith("JWT ")) {
+            jwtToken = jwtToken.substring(4);
+          }
+  
+          const formattedToken = `JWT ${jwtToken}`;
+          console.log("✅ Storing token:", formattedToken);
+  
+          localStorage.setItem('username', data.username);
+          localStorage.setItem('token', formattedToken);
+          dispatch(userLoggedIn(data.username));
+  
+          alert("Login successful!");
+          window.location.href = "/movielist";
+        } else {
+          alert("Login failed: Token missing in response.");
+        }
+      })
+      .catch((error) => {
+        console.error("Login error:", error);
+        alert("Login failed: " + error.message);
+      });
     };
-}
+  }  
 
 // 🚀 Logout Action
 export function logoutUser() {
