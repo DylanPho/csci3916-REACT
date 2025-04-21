@@ -1,75 +1,80 @@
 import actionTypes from '../constants/actionTypes';
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080"; // Fallback to localhost if env var is missing
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080"; // Fallback if .env isn't set
 
+// Action creators
 function moviesFetched(movies) {
-    return {
-        type: actionTypes.FETCH_MOVIES,
-        movies: movies
-    }
+  return {
+    type: actionTypes.FETCH_MOVIES,
+    movies: movies
+  };
 }
 
 function movieFetched(movie) {
-    return {
-        type: actionTypes.FETCH_MOVIE,
-        selectedMovie: movie
-    }
+  return {
+    type: actionTypes.FETCH_MOVIE,
+    selectedMovie: movie
+  };
 }
 
 function movieSet(movie) {
-    return {
-        type: actionTypes.SET_MOVIE,
-        selectedMovie: movie
-    }
+  return {
+    type: actionTypes.SET_MOVIE,
+    selectedMovie: movie
+  };
 }
 
+// Thunk to manually set selected movie (no fetch)
 export function setMovie(movie) {
-    return dispatch => {
-        dispatch(movieSet(movie));
-    }
+  return dispatch => {
+    dispatch(movieSet(movie));
+  };
 }
 
-// ✅ Fetch a single movie with reviews
-export function fetchMovie(movieId) {
-    return dispatch => {
-        return fetch(`${API_URL}/movies/${movieId}?reviews=true`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': localStorage.getItem('token') // Include JWT token
-            }
-        }).then((response) => {
-            if (!response.ok) {
-                throw Error(`Error ${response.status}: ${response.statusText}`);
-            }
-            return response.json();
-        }).then((res) => {
-            dispatch(movieFetched(res));
-        }).catch((e) => console.error("Error fetching movie:", e));
-    }
-}
+// Thunk to fetch all movies with reviews and avgRating
+export const fetchMovies = () => async (dispatch) => {
+  try {
+    const token = localStorage.getItem('token');
 
-// ✅ Fetch all movies (with optional reviews query)
-export function fetchMovies() {
-    return dispatch => {
-        const token = localStorage.getItem('token'); // Retrieve stored token
-        console.log("Fetching movies from:", `${API_URL}/movies?reviews=true`); // Debugging
+    const response = await fetch(`${API_URL}/movies?reviews=true`, {
+      headers: {
+        Authorization: token,
+        'Content-Type': 'application/json',
+      },
+    });
 
-        return fetch(`${API_URL}/movies?reviews=true`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': token  // Include JWT token
-            }
-        }).then(response => {
-            if (!response.ok) {
-                throw Error(`Error ${response.status}: ${response.statusText}`);
-            }
-            return response.json();
-        }).then(res => {
-            dispatch(moviesFetched(res));
-        }).catch((e) => console.error("Error fetching movies:", e));
+    const data = await response.json();
+
+    if (data.success) {
+      dispatch(moviesFetched(data.data));
+    } else {
+      console.error('Failed to fetch movies:', data.message);
     }
-}
+  } catch (error) {
+    console.error('Fetch movies error:', error.message);
+  }
+};
+
+// Thunk to fetch a single movie by ID for detail view
+export const fetchMovie = (movieId) => async (dispatch) => {
+  try {
+    const token = localStorage.getItem('token');
+
+    const response = await fetch(`${API_URL}/movies/id/${movieId}`, {
+      headers: {
+        Authorization: token,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      dispatch(movieFetched(data.data));
+    } else {
+      console.error('Failed to fetch movie:', data.message);
+    }
+  } catch (error) {
+    console.error('Fetch movie error:', error.message);
+  }
+};
