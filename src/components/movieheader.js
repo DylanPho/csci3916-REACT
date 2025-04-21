@@ -27,6 +27,9 @@ function MovieHeader() {
                     <Nav.Link as={NavLink} to={'/movie/' + (selectedMovie? selectedMovie._id: '')} disabled={!loggedIn}>
                         Movie Detail
                     </Nav.Link>
+                    <Nav.Link as={NavLink} to="/search" disabled={!loggedIn}>
+                      Search
+                    </Nav.Link>
                     {loggedIn ? (
                         <Nav.Link>
                             <span style={{ color: "white", marginRight: "10px" }}>

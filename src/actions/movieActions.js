@@ -69,7 +69,7 @@ export const fetchMovie = (movieId) => async (dispatch) => {
 
     const response = await fetch(`${API_URL}/movies/id/${movieId}`, {
       headers: {
-        Authorization: token || '', // send empty string if token is null
+        Authorization: token || '',
         'Content-Type': 'application/json',
       },
     });
@@ -84,5 +84,33 @@ export const fetchMovie = (movieId) => async (dispatch) => {
     }
   } catch (error) {
     console.error("💥 fetchMovie error:", error.message);
+  }
+};
+
+// ✅ Moved outside fetchMovie:
+export const searchMovies = (searchData) => async (dispatch) => {
+  try {
+    const token = localStorage.getItem('token');
+
+    const response = await fetch(`${API_URL}/movies/search`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: token
+      },
+      body: JSON.stringify(searchData)
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      return result.data;
+    } else {
+      alert("Search failed: " + result.message);
+      return [];
+    }
+  } catch (err) {
+    console.error("Search error:", err);
+    return [];
   }
 };
