@@ -15,9 +15,18 @@ const Search = () => {
     if (actorName.trim()) searchData.actorName = actorName;
   
     const response = await searchMovies(searchData);
-    console.log("🔍 Search result:", response); // ✅ Log actual results
+    console.log("🔍 Search result:", response);
+    
+    if (!Array.isArray(response)) {
+        alert("Invalid search response!");
+        return;
+    }
+    
+    if (response.length === 0) {
+        alert("No results found. Try searching for a known movie title or actor.");
+    }
     setResults(response);
-  };  
+};  
 
   return (
     <Container className="p-4">
