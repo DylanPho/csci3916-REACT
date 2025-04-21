@@ -13,10 +13,10 @@ function App() {
         <MovieHeader />
         <Routes>
           <Route path="/" element={<MovieList />} />
+          <Route path="/search" element={<Search />} /> 
           <Route path="/movielist" element={<MovieList />}/>
           <Route path="/movie/:movieId" element={<Movie />}/>
           <Route path="/signin" element={<Authentication />}/>
-          <Route path="/search" element={<Search />} /> 
           {/*... other routes */}
         </Routes>
       </HashRouter>
