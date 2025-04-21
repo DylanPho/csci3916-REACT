@@ -1,6 +1,6 @@
 import actionTypes from '../constants/actionTypes';
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080"; // Fallback if .env isn't set
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080"; // fallback
 
 // Action creators
 function moviesFetched(movies) {
@@ -24,17 +24,19 @@ function movieSet(movie) {
   };
 }
 
-// Thunk to manually set selected movie (no fetch)
 export function setMovie(movie) {
   return dispatch => {
     dispatch(movieSet(movie));
   };
 }
 
-// Thunk to fetch all movies with reviews and avgRating
 export const fetchMovies = () => async (dispatch) => {
   try {
     const token = localStorage.getItem('token');
+    if (!token) {
+      console.warn("No JWT token found in localStorage.");
+      return;
+    }
 
     const response = await fetch(`${API_URL}/movies?reviews=true`, {
       headers: {
@@ -44,37 +46,43 @@ export const fetchMovies = () => async (dispatch) => {
     });
 
     const data = await response.json();
+    console.log("Fetched movies:", data);
 
     if (data.success) {
       dispatch(moviesFetched(data.data));
     } else {
-      console.error('Failed to fetch movies:', data.message);
+      console.error("API returned error:", data.message);
     }
   } catch (error) {
-    console.error('Fetch movies error:', error.message);
+    console.error("Error fetching movies:", error.message);
   }
 };
 
-// Thunk to fetch a single movie by ID for detail view
 export const fetchMovie = (movieId) => async (dispatch) => {
   try {
     const token = localStorage.getItem('token');
 
+    if (!token) {
+      console.warn("❌ No token found in localStorage.");
+      return;
+    }
+
     const response = await fetch(`${API_URL}/movies/id/${movieId}`, {
       headers: {
-        Authorization: token,
+        Authorization: token || '', // send empty string if token is null
         'Content-Type': 'application/json',
       },
     });
 
     const data = await response.json();
+    console.log("📥 Single movie API response:", data);
 
     if (data.success) {
       dispatch(movieFetched(data.data));
     } else {
-      console.error('Failed to fetch movie:', data.message);
+      console.error("❌ Failed to fetch movie:", data.message);
     }
   } catch (error) {
-    console.error('Fetch movie error:', error.message);
+    console.error("💥 fetchMovie error:", error.message);
   }
 };

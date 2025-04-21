@@ -3,7 +3,6 @@ import actionTypes from '../constants/actionTypes';
 const API_URL = process.env.REACT_APP_API_URL; // Uses environment variable
 console.log("Backend API URL:", process.env.REACT_APP_API_URL);
 
-
 // Action: User Logged In
 function userLoggedIn(username) {
     return {
@@ -19,7 +18,7 @@ function logout() {
     };
 }
 
-// 🚀 **Fixed Signup (Register) Action**
+// 🚀 Signup Action (with automatic login)
 export function submitRegister(data) {
     return dispatch => {
         return fetch(`${API_URL}/signup`, {
@@ -51,7 +50,7 @@ export function submitRegister(data) {
     };
 }
 
-// 🚀 **Fixed Login Action**
+// 🚀 Login Action
 export function submitLogin(data) {
     return dispatch => {
         return fetch(`${API_URL}/signin`, {
@@ -69,29 +68,40 @@ export function submitLogin(data) {
             return response.json();
         })
         .then(res => {
-            if (res.success) {
+            if (res.success && res.token) {
+                let jwtToken = res.token;
+
+                // ✅ Strip duplicate "JWT " prefix if it already exists
+                if (jwtToken.startsWith("JWT ")) {
+                    jwtToken = jwtToken.substring(4);
+                }
+
+                const formattedToken = `JWT ${jwtToken}`;
+                console.log("✅ Storing token:", formattedToken);
+
                 localStorage.setItem('username', data.username);
-                localStorage.setItem('token', `JWT ${res.token}`);
+                localStorage.setItem('token', formattedToken);
                 dispatch(userLoggedIn(data.username));
+
                 alert("Login successful!");
                 window.location.href = "/movielist";
             } else {
-                alert(`Login failed: ${res.message}`);
+                alert("Login failed: Token missing in response.");
             }
         })
         .catch((error) => {
             console.error("Login error:", error);
             alert("Login failed: " + error.message);
-        });        
+        });
     };
 }
 
-// 🚀 **Fixed Logout Action**
+// 🚀 Logout Action
 export function logoutUser() {
     return dispatch => {
         localStorage.removeItem('username');
         localStorage.removeItem('token');
         dispatch(logout());
-        window.location.href = "/signin"; // Redirect after logout
+        window.location.href = "/signin";
     };
 }
