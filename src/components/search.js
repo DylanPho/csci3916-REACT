@@ -10,47 +10,70 @@ const Search = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
 
-    const data = {};
-    if (title.trim()) data.title = title;
-    if (actorName.trim()) data.actorName = actorName;
+    const searchData = {};
+    if (title.trim()) searchData.title = title;
+    if (actorName.trim()) searchData.actorName = actorName;
 
-    const movies = await searchMovies(data);
-    setResults(movies);
+    const response = await searchMovies(searchData); // Returns just the array
+    setResults(response); // ✅ No `.data` needed, already extracted in action
   };
 
   return (
     <Container className="p-4">
       <h2 className="mb-4">Search Movies</h2>
+
       <Form onSubmit={handleSearch}>
-        <Form.Group>
+        <Form.Group className="mb-3">
           <Form.Label>Movie Title</Form.Label>
-          <Form.Control type="text" value={title} onChange={e => setTitle(e.target.value)} />
+          <Form.Control
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Enter full or partial movie title"
+          />
         </Form.Group>
-        <Form.Group>
+
+        <Form.Group className="mb-3">
           <Form.Label>Actor Name</Form.Label>
-          <Form.Control type="text" value={actorName} onChange={e => setActorName(e.target.value)} />
+          <Form.Control
+            type="text"
+            value={actorName}
+            onChange={(e) => setActorName(e.target.value)}
+            placeholder="Enter full or partial actor name"
+          />
         </Form.Group>
-        <Button type="submit" className="mt-2">Search</Button>
+
+        <Button type="submit" variant="primary">
+          Search
+        </Button>
       </Form>
 
       <hr />
 
-      <Row xs={1} md={2} lg={3} className="g-4 mt-3">
-        {results.map((movie, idx) => (
-          <Col key={idx}>
-            <Card className="bg-dark text-light h-100">
-              <Card.Img variant="top" src={movie.imageUrl} />
-              <Card.Body>
-                <Card.Title>{movie.title}</Card.Title>
-                <Card.Text>
-                  <b>Genre:</b> {movie.genre}<br />
-                  <b>Year:</b> {movie.releaseDate}
-                </Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+      {Array.isArray(results) && results.length > 0 ? (
+        <Row xs={1} md={2} lg={3} className="g-4 mt-2">
+          {results.map((movie, idx) => (
+            <Col key={idx}>
+              <Card className="bg-dark text-light h-100">
+                <Card.Img
+                  variant="top"
+                  src={movie.imageUrl || 'https://via.placeholder.com/300x400?text=No+Image'}
+                  alt={movie.title}
+                />
+                <Card.Body>
+                  <Card.Title>{movie.title}</Card.Title>
+                  <Card.Text>
+                    <strong>Genre:</strong> {movie.genre} <br />
+                    <strong>Release:</strong> {movie.releaseDate}
+                  </Card.Text>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      ) : (
+        <p className="text-light mt-3">{results.length === 0 ? 'No results found yet.' : null}</p>
+      )}
     </Container>
   );
 };
