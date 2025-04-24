@@ -19,30 +19,38 @@ const MovieDetail = () => {
 
   const submitReview = async (e) => {
     e.preventDefault(); // ✅ Prevent full page reload
+    console.log("✅ Review submission intercepted");
 
     const token = localStorage.getItem("token");
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/reviews`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token
-      },
-      body: JSON.stringify({
-        movieId: movieId,
-        rating: Number(rating),
-        review: review
-        // username will be extracted from JWT by backend
-      })
-    });
 
-    const data = await response.json();
-    if (data.success) {
-      alert("Review submitted!");
-      dispatch(fetchMovie(movieId)); // refresh movie details
-      setRating(0);
-      setReview("");
-    } else {
-      alert("Failed to submit review: " + data.message);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/reviews`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token
+        },
+        body: JSON.stringify({
+          movieId: movieId,
+          rating: Number(rating),
+          review: review
+          // Username is extracted from JWT on backend
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert("Review submitted!");
+        dispatch(fetchMovie(movieId)); // Refresh movie with new reviews
+        setRating(0);
+        setReview("");
+      } else {
+        alert("Failed to submit review: " + data.message);
+      }
+    } catch (err) {
+      alert("Network or server error.");
+      console.error(err);
     }
   };
 
@@ -57,7 +65,9 @@ const MovieDetail = () => {
         </Card.Body>
 
         <ListGroup>
-          <ListGroupItem className="bg-dark text-light"><strong>{selectedMovie.title}</strong></ListGroupItem>
+          <ListGroupItem className="bg-dark text-light">
+            <strong>{selectedMovie.title}</strong>
+          </ListGroupItem>
           <ListGroupItem className="bg-dark text-light">
             {selectedMovie.actors.map((actor, i) => (
               <p key={i}><b>{actor.actorName}</b> as {actor.characterName}</p>
@@ -80,11 +90,12 @@ const MovieDetail = () => {
               </p>
             ))
           )}
-        </Card.Body>
 
-        <Card.Body>
+          <hr className="text-secondary" />
+
+          {/* ✅ Review Form */}
           <Form onSubmit={submitReview}>
-            <Form.Group>
+            <Form.Group className="mb-3">
               <Form.Label>Rating (0–5)</Form.Label>
               <Form.Control
                 type="number"
@@ -95,7 +106,8 @@ const MovieDetail = () => {
                 required
               />
             </Form.Group>
-            <Form.Group>
+
+            <Form.Group className="mb-3">
               <Form.Label>Review</Form.Label>
               <Form.Control
                 as="textarea"
@@ -105,7 +117,8 @@ const MovieDetail = () => {
                 required
               />
             </Form.Group>
-            <Button type="submit" variant="primary" className="mt-2">
+
+            <Button type="submit" variant="primary">
               Submit Review
             </Button>
           </Form>
