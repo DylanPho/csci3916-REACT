@@ -102,9 +102,10 @@ export const searchMovies = (searchData) => async (dispatch) => {
     });
 
     const result = await response.json();
+    console.log("🔍 Search API result:", result);
 
     if (result.success) {
-      return result.data;
+      return result.data; // ✅ return only the array
     } else {
       alert("Search failed: " + result.message);
       return [];
