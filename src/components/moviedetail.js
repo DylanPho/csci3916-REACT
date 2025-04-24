@@ -9,7 +9,6 @@ const MovieDetail = () => {
   const dispatch = useDispatch();
   const { movieId } = useParams();
   const selectedMovie = useSelector(state => state.movie.selectedMovie);
-  const username = localStorage.getItem("username");
 
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
@@ -19,7 +18,7 @@ const MovieDetail = () => {
   }, [dispatch, movieId]);
 
   const submitReview = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // ✅ Prevent full page reload
 
     const token = localStorage.getItem("token");
     const response = await fetch(`${process.env.REACT_APP_API_URL}/reviews`, {
@@ -87,13 +86,28 @@ const MovieDetail = () => {
           <Form onSubmit={submitReview}>
             <Form.Group>
               <Form.Label>Rating (0–5)</Form.Label>
-              <Form.Control type="number" min="0" max="5" value={rating} onChange={(e) => setRating(e.target.value)} required />
+              <Form.Control
+                type="number"
+                min="0"
+                max="5"
+                value={rating}
+                onChange={(e) => setRating(e.target.value)}
+                required
+              />
             </Form.Group>
             <Form.Group>
               <Form.Label>Review</Form.Label>
-              <Form.Control as="textarea" rows={3} value={review} onChange={(e) => setReview(e.target.value)} required />
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={review}
+                onChange={(e) => setReview(e.target.value)}
+                required
+              />
             </Form.Group>
-            <Button type="submit" variant="primary" className="mt-2">Submit Review</Button>
+            <Button type="submit" variant="primary" className="mt-2">
+              Submit Review
+            </Button>
           </Form>
         </Card.Body>
       </Card>
