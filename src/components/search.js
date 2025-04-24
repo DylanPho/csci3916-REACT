@@ -14,19 +14,24 @@ const Search = () => {
     if (title.trim()) searchData.title = title;
     if (actorName.trim()) searchData.actorName = actorName;
 
-    const response = await searchMovies(searchData);
-    console.log("🔍 Search result:", response);
+    try {
+      const response = await searchMovies(searchData); // ✅ CALLS the function
+      console.log("🔍 Search result:", response); // ✅ Logs the actual response
 
-    if (!Array.isArray(response)) {
-      alert("Invalid search response!");
-      return;
+      if (!Array.isArray(response)) {
+        alert("Invalid search response!");
+        return;
+      }
+
+      if (response.length === 0) {
+        alert("No results found. Try a different title or actor.");
+      }
+
+      setResults(response);
+    } catch (err) {
+      console.error("Search error:", err);
+      alert("Error fetching search results.");
     }
-
-    if (response.length === 0) {
-      alert("No results found. Try searching for a known movie title or actor.");
-    }
-
-    setResults(response);
   };
 
   return (
@@ -83,7 +88,9 @@ const Search = () => {
           ))}
         </Row>
       ) : (
-        <p className="text-light mt-3">{results.length === 0 ? 'No results found yet.' : null}</p>
+        <p className="text-light mt-3">
+          {results.length === 0 ? 'No results found yet.' : null}
+        </p>
       )}
     </Container>
   );
